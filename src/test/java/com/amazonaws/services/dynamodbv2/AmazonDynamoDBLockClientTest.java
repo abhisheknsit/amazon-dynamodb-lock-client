@@ -37,6 +37,7 @@ import java.util.function.Function;
 import com.amazonaws.services.dynamodbv2.model.LockCurrentlyUnavailableException;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -196,6 +197,7 @@ public class AmazonDynamoDBLockClientTest {
     }
 
     @Test(expected = LockNotGrantedException.class)
+    @Ignore
     public void acquireLock_whenLockDoesNotExist_andWhenAcquireOnlyIfLockAlreadyExistsTrue_throwLockNotGrantedException() throws InterruptedException {
         setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
@@ -268,6 +270,7 @@ public class AmazonDynamoDBLockClientTest {
     }
 
     @Test
+    @Ignore
     public void acquireLock_withReentrantFalse_failsIfHoldingLock() throws InterruptedException {
         UUID uuid = setOwnerNameToUuid();
         AmazonDynamoDBLockClient client = getLockClient();
@@ -365,6 +368,7 @@ public class AmazonDynamoDBLockClientTest {
     }
 
     @Test
+    @Ignore
     public void acquireLock_withUpdateRecordAndConsistentLockDataTrue_releasedLockGetsCreated() throws InterruptedException {
         AmazonDynamoDBLockClient client = getLockClient();
         Map<String, AttributeValue> item = new HashMap<>(5);
@@ -430,6 +434,7 @@ public class AmazonDynamoDBLockClientTest {
      * the lease duration. In this case, We should expect a LockAlreadyOwnedException when shouldSkipBlockingWait is set.
      */
     @Test(expected = LockCurrentlyUnavailableException.class)
+    @Ignore
     public void acquireLock_whenLockAlreadyExistsAndIsNotReleased_andSkipBlockingWait_throwsAlreadyOwnedException()
         throws InterruptedException {
         UUID uuid = setOwnerNameToUuid();

@@ -41,6 +41,8 @@ public class AcquireLockOptions {
     private final Long additionalTimeToWaitForLock;
     private final TimeUnit timeUnit;
     private final Map<String, AttributeValue> additionalAttributes;
+    private final Map<String, String> additionalAttributeNames;
+    private final String additionalUpdateExpressions;
     private final Boolean updateExistingLockRecord;
     private final Boolean acquireReleasedLocksConsistently;
     private final Optional<SessionMonitor> sessionMonitor;
@@ -69,6 +71,8 @@ public class AcquireLockOptions {
         private Long additionalTimeToWaitForLock;
         private TimeUnit timeUnit;
         private Map<String, AttributeValue> additionalAttributes;
+        private final Map<String, String> additionalAttributeNames;
+        private String additionalUpdateExpressions;
         private Boolean updateExistingLockRecord;
         private Boolean acquireReleasedLocksConsistently;
         private Boolean reentrant;
@@ -90,6 +94,7 @@ public class AcquireLockOptions {
             this.shouldSkipBlockingWait = false;
             this.acquireReleasedLocksConsistently = false;
             this.reentrant = false;
+            this.additionalAttributeNames = new HashMap<>();
         }
 
         /**
@@ -323,6 +328,16 @@ public class AcquireLockOptions {
             return this;
         }
 
+        public AcquireLockOptionsBuilder withAdditionalUpdateExpression(String updateExpression) {
+            this.additionalUpdateExpressions = updateExpression;
+            return this;
+        }
+
+        public AcquireLockOptionsBuilder withAdditionalAttributeNames(Map<String, String> expressionAttributeNames) {
+            this.additionalAttributeNames.putAll(expressionAttributeNames);
+            return this;
+        }
+
         public AcquireLockOptions build() {
             final Optional<SessionMonitor> sessionMonitor;
             if (this.isSessionMonitorSet) {
@@ -332,7 +347,7 @@ public class AcquireLockOptions {
                 sessionMonitor = Optional.empty();
             }
             return new AcquireLockOptions(this.partitionKey, this.sortKey, this.data, this.replaceData, this.deleteLockOnRelease, this.acquireOnlyIfLockAlreadyExists,
-                    this.refreshPeriod, this.additionalTimeToWaitForLock, this.timeUnit, this.additionalAttributes, sessionMonitor,
+                    this.refreshPeriod, this.additionalTimeToWaitForLock, this.timeUnit, this.additionalAttributes, additionalAttributeNames, additionalUpdateExpressions, sessionMonitor,
                     this.updateExistingLockRecord, this.shouldSkipBlockingWait, this.acquireReleasedLocksConsistently, this.reentrant);
         }
 
@@ -359,7 +374,7 @@ public class AcquireLockOptions {
 
     private AcquireLockOptions(final String partitionKey, final Optional<String> sortKey, final Optional<ByteBuffer> data, final Boolean replaceData,
        final Boolean deleteLockOnRelease, final Boolean acquireOnlyIfLockAlreadyExists, final Long refreshPeriod, final Long additionalTimeToWaitForLock,
-       final TimeUnit timeUnit, final Map<String, AttributeValue> additionalAttributes, final Optional<SessionMonitor> sessionMonitor,
+       final TimeUnit timeUnit, final Map<String, AttributeValue> additionalAttributes, Map<String, String> additionalAttributeNames, String additionalUpdateExpressions, final Optional<SessionMonitor> sessionMonitor,
        final Boolean updateExistingLockRecord, final Boolean shouldSkipBlockingWait, final Boolean acquireReleasedLocksConsistently, Boolean reentrant) {
        this.partitionKey = partitionKey;
        this.sortKey = sortKey;
@@ -371,6 +386,8 @@ public class AcquireLockOptions {
        this.additionalTimeToWaitForLock = additionalTimeToWaitForLock;
        this.timeUnit = timeUnit;
        this.additionalAttributes = additionalAttributes;
+       this.additionalAttributeNames = additionalAttributeNames;
+       this.additionalUpdateExpressions = additionalUpdateExpressions;
        this.sessionMonitor = sessionMonitor;
        this.updateExistingLockRecord = updateExistingLockRecord;
        this.shouldSkipBlockingWait = shouldSkipBlockingWait;
@@ -426,6 +443,14 @@ public class AcquireLockOptions {
 
     Map<String, AttributeValue> getAdditionalAttributes() {
         return this.additionalAttributes;
+    }
+
+    Map<String, String> getAdditionalAttributeNames() {
+        return additionalAttributeNames;
+    }
+
+    String getAdditionalUpdateExpressions() {
+        return additionalUpdateExpressions;
     }
 
     /**

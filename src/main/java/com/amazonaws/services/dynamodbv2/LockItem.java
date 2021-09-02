@@ -27,6 +27,8 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
+import software.amazon.awssdk.services.dynamodb.model.ConsumedCapacity;
+import software.amazon.awssdk.services.dynamodb.model.UpdateItemResponse;
 
 /**
  * A lock that has been successfully acquired. Provides APIs for releasing, heartbeating, and extending the lock.
@@ -48,6 +50,8 @@ public class LockItem implements Closeable {
     private final Map<String, AttributeValue> additionalAttributes;
 
     private final Optional<SessionMonitor> sessionMonitor;
+    private ConsumedCapacity consumedCapacity;
+    private Map<String, AttributeValue> updatedValues;
 
     /**
      * Creates a lock item representing a given key. This constructor should
@@ -93,6 +97,13 @@ public class LockItem implements Closeable {
         this.isReleased = isReleased;
         this.sessionMonitor = sessionMonitor;
         this.additionalAttributes = additionalAttributes;
+    }
+
+    public LockItem(AmazonDynamoDBLockClient amazonDynamoDBLockClient, String key, Optional<String> sortKey, Optional<ByteBuffer> newLockData, boolean deleteLockOnRelease, String ownerName, long leaseDurationInMilliseconds, long lastUpdatedTime, String recordVersionNumber, boolean b, Optional<SessionMonitor> sessionMonitor, Map<String, AttributeValue> additionalAttributes, UpdateItemResponse updateItemResult) {
+        this(amazonDynamoDBLockClient, key, sortKey, newLockData, deleteLockOnRelease, ownerName, leaseDurationInMilliseconds, lastUpdatedTime,
+                recordVersionNumber, b, sessionMonitor, additionalAttributes);
+        this.updatedValues = updateItemResult.attributes();
+        this.consumedCapacity = updateItemResult.consumedCapacity();
     }
 
     /**
@@ -391,5 +402,13 @@ public class LockItem implements Closeable {
             throw new SessionMonitorNotSetException("Can't run callback without first setting SessionMonitor");
         }
         this.sessionMonitor.get().runCallback();
+    }
+
+    public ConsumedCapacity getConsumedCapacity() {
+        return consumedCapacity;
+    }
+
+    public Map<String, AttributeValue> getUpdatedValues() {
+        return updatedValues;
     }
 }
